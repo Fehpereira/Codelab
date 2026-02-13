@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { CourseTagsList } from '@/components/pages/courses/tags-list';
 
 export default function Home() {
   return (
-    <div>
-      <h1>Codelab</h1>
-      <Button>Click me</Button>
-    </div>
+    <>
+      <CourseTagsList />
+    </>
   );
 }

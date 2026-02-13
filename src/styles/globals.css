@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -88,6 +88,10 @@
 
   button {
     @apply cursor-pointer;
+  }
+
+  .scroll-hidden::-webkit-scrollbar {
+    @apply hidden;
   }
 }
 
