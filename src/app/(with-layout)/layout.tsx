@@ -29,7 +29,6 @@ export default function Layout({ children }: LayoutProps) {
             <SidebarTrigger className="flex md:hidden -ml-1" />
             <SearchInput />
           </div>
-
           {!user && (
             <Link href="/auth/sign-in">
               <Button size="sm">
