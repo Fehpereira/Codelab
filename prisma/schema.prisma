@@ -58,6 +58,7 @@ model Course {
   shortDescription String?
   thumbnail        String
   price            Float
+  discountPrice    Float
   tags             CourseTag[]
   difficulty       CourseDifficulty @default(EASY)
 

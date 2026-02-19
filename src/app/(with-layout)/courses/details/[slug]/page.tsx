@@ -1,4 +1,6 @@
 import { getCourse } from '@/actions/courses';
+import { CourseProgress } from '@/components/pages/courses/course-details/course-progress';
+import { BackButton } from '@/components/ui/back-button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -65,7 +67,8 @@ export default async function CourseDetailsPage({
     <div className="flex flex-col">
       <div className="flex justify-between gap-6 flex-col md:flex-row">
         <div>
-          BACK BUTTON
+          <BackButton />
+
           <h1 className="text-3xl sm:text-4xl font-bold mt-6">
             {course.title}
           </h1>
@@ -127,8 +130,37 @@ export default async function CourseDetailsPage({
             </div>
           </TabsContent>
 
-          <TabsContent value="content"></TabsContent>
+          <TabsContent value="content" className="mt-4 flex flex-col gap-6">
+            {course.modules.map((mod, index) => (
+              <div
+                key={mod.id}
+                className="flex items-center gap-4 bg-muted p-4 rounded-2xl"
+              >
+                <div className="w-12 h-12 min-w-12 flex items-center justify-center border-2 border-primary text-primary font-bold text-2xl rounded-full bg-primary/10">
+                  {index + 1}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="sm:text-xl font-bold">
+                      <Badge variant="outline">
+                        {mod.lessons.length} aula
+                        {mod.lessons.length === 1 ? '' : 's'}
+                      </Badge>
+                    </p>
+                  </div>
+                  {!!mod.description && (
+                    <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                      {mod.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </TabsContent>
         </Tabs>
+
+        <CourseProgress course={course} />
       </div>
     </div>
   );

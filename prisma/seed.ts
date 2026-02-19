@@ -10,7 +10,7 @@ async function main() {
   await prisma.course.deleteMany();
 
   for (const courseData of sampleCourses) {
-    const { tags, modules, discountPrice: _discountPrice, ...course } = courseData;
+    const { tags, modules, ...course } = courseData;
 
     await prisma.course.create({
       data: {
