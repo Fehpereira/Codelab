@@ -40,6 +40,26 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --animate-slideDown: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
+  --animate-slideUp: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
+
+  @keyframes slideDown {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-context-height);
+    }
+  }
+  @keyframes slideUo {
+    from {
+      height: var(--radix-accordion-context-height);
+    }
+    to {
+      height: 0;
+    }
+  }
 }
 
 :root {
