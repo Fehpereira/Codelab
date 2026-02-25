@@ -9,17 +9,17 @@ import {
 
 type VideoPlayerProps = {
   videoId: string;
-  autoPlay: boolean;
+  autoplay: boolean;
 };
 
-const VideoPlayer = ({ videoId, autoPlay }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoId, autoplay }: VideoPlayerProps) => {
   const userAlreadyInteracted = navigator.userActivation.hasBeenActive;
 
   return (
     <MediaPlayer
       title="Vídeo da Aula"
       src={`youtube/${videoId}`}
-      autoPlay={autoPlay && userAlreadyInteracted}
+      autoPlay={autoplay && userAlreadyInteracted}
     >
       <MediaProvider />
       <PlyrLayout icons={plyrLayoutIcons} />
@@ -27,4 +27,4 @@ const VideoPlayer = ({ videoId, autoPlay }: VideoPlayerProps) => {
   );
 };
 
-export default VideoPlayer
+export default VideoPlayer;
