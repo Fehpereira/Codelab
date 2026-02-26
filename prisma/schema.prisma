@@ -17,8 +17,9 @@ model User {
   clerkUserId String  @unique
   imageUrl    String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  completedLessons CompletedLesson[]
 
   @@map("users")
 }
@@ -65,7 +66,8 @@ model Course {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  modules CourseModule[]
+  modules          CourseModule[]
+  completedLessons CompletedLesson[]
 
   @@map("courses")
 }
@@ -102,8 +104,27 @@ model CourseLesson {
   moduleId String
   module   CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  completedLessons CompletedLesson[]
+
+  @@map("course_lessons")
+}
+
+model CompletedLesson {
+  id String @id @default(cuid())
+
+  lessonId String
+  lesson   CourseLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  @@map("course_lessons")
+  @@map("completed_lessons")
 }
