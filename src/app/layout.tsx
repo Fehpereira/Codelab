@@ -6,6 +6,7 @@ import { ptBR } from '@clerk/localizations';
 
 import '@/styles/globals.css';
 import '@/styles/clerk.css';
+import { ClientProviders } from '@/components/shared/client-providers';
 
 const nunito = Nunito({
   variable: '--font-sans',
@@ -32,7 +33,7 @@ export default function RootLayout({
     >
       <html lang="pt-BR" suppressHydrationWarning>
         <body className={cn(nunito.variable, 'antialiased font-sans dark')}>
-          {children}
+          <ClientProviders>{children}</ClientProviders>
         </body>
       </html>
     </ClerkProvider>
