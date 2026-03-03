@@ -9,8 +9,8 @@ type CompleteLessonPayload = {
 };
 
 export const markLessonAsCompleted = async ({
-  courseSlug,
   lessonId,
+  courseSlug,
 }: CompleteLessonPayload) => {
   const { userId } = await getUser();
 
@@ -31,15 +31,15 @@ export const markLessonAsCompleted = async ({
 
   if (isAlreadyCompleted) return isAlreadyCompleted;
 
-  const completedLesson = await prisma.completedLesson.findFirst({
-    where: {
+  const completedLesson = await prisma.completedLesson.create({
+    data: {
       lessonId,
       userId,
       courseId: course.id,
     },
   });
 
-  if (!completedLesson) throw new Error('User does not have this course');
+  return completedLesson;
 };
 
 export const unmarkLessonAsCompleted = async (lessonId: string) => {

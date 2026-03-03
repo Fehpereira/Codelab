@@ -17,16 +17,16 @@ type LessonItemProps = {
 };
 
 export const LessonItem = ({ lesson }: LessonItemProps) => {
-  const courseSlug = useGetParams('slug');
   const queryClient = useQueryClient();
 
-  const currentLessonId = '';
+  const courseSlug = useGetParams('slug');
+  const currentLessonId = useGetParams('lessonId');
+
+  const lessonId = lesson.id;
   const completed = lesson.completed;
 
   const PrimaryIcon = completed ? CircleCheckBig : Video;
   const SecondaryIcon = completed ? CircleX : CircleCheckBig;
-
-  const lessonId = lesson.id;
 
   const { mutate: handleCompleteLesson, isPending: isCompletingLesson } =
     useMutation({
@@ -59,7 +59,7 @@ export const LessonItem = ({ lesson }: LessonItemProps) => {
         lesson.id === currentLessonId && 'text-white',
         completed && 'text-primary',
       )}
-      href={`/courses/course-slug/module-id/lesson/${lesson.id}`}
+      href={`/courses/${courseSlug}/${lesson.moduleId}/lesson/${lesson.id}`}
     >
       <Tooltip
         content={

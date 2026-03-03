@@ -4,17 +4,26 @@ import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip } from '@/components/ui/tooltip';
+import { useGetParams } from '@/hooks/useGetParams';
 import { usePreferencesStore } from '@/stores/preferences';
 import { PanelRightOpen } from 'lucide-react';
 import Link from 'next/link';
 
 type TopDetailsProps = {
-  course: Course;
+  course: CourseWithModulesAndLessons;
 };
 
 export const TopDetails = ({ course }: TopDetailsProps) => {
   const { autoplay, setAutoPlay, setModulesListCollapsed } =
     usePreferencesStore();
+
+  const moduleId = useGetParams('moduleId');
+  const lessonId = useGetParams('lessonId');
+
+  const currentModule = course.modules.find((mod) => mod.id === moduleId);
+  const currentLesson = currentModule?.lessons.find(
+    (lesson) => lesson.id === lessonId,
+  );
 
   return (
     <div className="w-full flex items-center gap-4 sm:gap-6 p-4 sm:p-6 border-b border-border bg-sidebar sticky top-0 z-10">
@@ -28,11 +37,11 @@ export const TopDetails = ({ course }: TopDetailsProps) => {
           {course.title}
         </Link>
         <span className="text-muted-foreground">/</span>
-        <p className="hidden sm:block line-clamp-1">Título do módulo</p>
+        <p className="hidden sm:block line-clamp-1">{currentModule?.title}</p>
 
         <span className="text-muted-foreground hidden sm:block">/</span>
 
-        <p className="line-clamp-1">Título da aula</p>
+        <p className="line-clamp-1">{currentLesson?.title}</p>
       </div>
 
       <div className="ml-auto flex items-center gap-4">

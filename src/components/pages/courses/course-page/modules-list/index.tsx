@@ -18,8 +18,8 @@ type ModulesListProps = {
 
 export const ModulesList = ({ modules }: ModulesListProps) => {
   const courseSlug = useGetParams('slug');
+  const moduleId = useGetParams('moduleId');
 
-  const moduleId = modules[0].id;
   const {
     expandedModule,
     setExpandedModule,
