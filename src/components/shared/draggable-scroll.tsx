@@ -6,7 +6,7 @@ import { useDraggable } from 'react-use-draggable-scroll';
 type DraggableScrollProps = ComponentProps<'div'>;
 
 export const DraggableScroll = ({ ...props }: DraggableScrollProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { events } = useDraggable(ref as RefObject<HTMLDivElement>);
+  const ref = useRef<HTMLDivElement>(null!);
+  const { events } = useDraggable(ref);
   return <div {...props} {...events} ref={ref} />;
 };

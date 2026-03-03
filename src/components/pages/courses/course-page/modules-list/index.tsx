@@ -7,12 +7,18 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { PanelRightOpen } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getCourseProgress } from '@/actions/course-progress';
+import { useGetParams } from '@/hooks/useGetParams';
+import { QUERY_KEYS } from '@/constants/query-keys';
 
 type ModulesListProps = {
   modules: CourseModuleWithLessons[];
 };
 
 export const ModulesList = ({ modules }: ModulesListProps) => {
+  const courseSlug = useGetParams('slug');
+
   const moduleId = modules[0].id;
   const {
     expandedModule,
@@ -34,6 +40,14 @@ export const ModulesList = ({ modules }: ModulesListProps) => {
   const handleToggleCollapsed = () => {
     setModulesListCollapsed(!modulesListCollapsed);
   };
+
+  const { data: courseProgress } = useQuery({
+    queryKey: QUERY_KEYS.courseProgress(courseSlug),
+    queryFn: () => getCourseProgress(courseSlug),
+    enabled: !!courseSlug,
+  });
+
+  const completedLessons = courseProgress?.completedLessons ?? [];
 
   return (
     <aside
@@ -76,7 +90,11 @@ export const ModulesList = ({ modules }: ModulesListProps) => {
             onValueChange={setExpandedModule}
           >
             {modules?.map((courseModule) => (
-              <ModuleItem key={courseModule.id} data={courseModule} />
+              <ModuleItem
+                key={courseModule.id}
+                data={courseModule}
+                completedLessons={completedLessons}
+              />
             ))}
           </Accordion.Root>
         </>
