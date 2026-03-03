@@ -10,15 +10,17 @@ import {
 type VideoPlayerProps = {
   videoId: string;
   autoplay: boolean;
+  onEnd?: () => void;
 };
 
-const VideoPlayer = ({ videoId, autoplay }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoId, autoplay, onEnd }: VideoPlayerProps) => {
   const userAlreadyInteracted = navigator.userActivation.hasBeenActive;
 
   return (
     <MediaPlayer
       title="Vídeo da Aula"
       src={`youtube/${videoId}`}
+      onEnd={onEnd}
       autoPlay={autoplay && userAlreadyInteracted}
     >
       <MediaProvider />

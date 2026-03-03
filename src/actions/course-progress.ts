@@ -83,9 +83,7 @@ export const getCourseProgress = async (courseSlug: string) => {
     },
   });
 
-  if (!course) {
-    throw new Error('Course not found');
-  }
+  if (!course) throw new Error('Course not found');
 
   const completedLessons = await prisma.completedLesson.findMany({
     where: {
