@@ -1,12 +1,44 @@
-import { CommentInput } from './comment-input';
+'use client';
 
-type LessonCommentsProps = {};
+import { useGetParams } from '@/hooks/useGetParams';
+import { CommentInput } from './comment-input';
+import { useQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants/query-keys';
+import { getLessonComments } from '@/actions/course-comments';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CommentItem } from './comment-item';
 
 export const LessonComments = () => {
+  const lessonId = useGetParams('lessonId');
+
+  const { data: comments } = useQuery({
+    queryKey: QUERY_KEYS.lessonComments(lessonId),
+    queryFn: () => getLessonComments(lessonId),
+    enabled: !!lessonId,
+  });
+
   return (
     <div className="flex flex-col gap-6">
       <h3 className="text-lg font-semibold"></h3>
-      <CommentInput />
+
+      {!comments ? (
+        <Skeleton className="w-full min-h-[200px]" />
+      ) : (
+        <>
+          {!comments.length && (
+            <p className="text-muted-foreground text-sm mb-2">
+              Nenhum comentário encontrado. Seja o primeiro(a) a comentar
+            </p>
+          )}
+
+          <div className="flex flex-col gap-3">
+            {comments.map((comment) => (
+              <CommentItem key={comment.id} comment={comment} />
+            ))}
+          </div>
+          <CommentInput />
+        </>
+      )}
     </div>
   );
 };

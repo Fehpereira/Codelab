@@ -2,12 +2,35 @@
 
 import { prisma } from '@/lib/prisma';
 import { getUser } from './user';
+import { checkRole } from '@/lib/clerk';
 
 type CreateLessonCommentPayload = {
   courseSlug: string;
   lessonId: string;
   content: string;
   parentId?: string;
+};
+
+export const getLessonComments = async (lessonId: string) => {
+  await getUser();
+
+  const comments = await prisma.lessonComment.findMany({
+    where: { lessonId, parentId: null },
+    include: {
+      user: true,
+      parent: true,
+      replies: {
+        include: {
+          user: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  return comments;
 };
 
 export const createLessonComment = async ({
@@ -52,4 +75,28 @@ export const createLessonComment = async ({
   });
 
   return comment;
+};
+
+export const deleteComment = async (commentId: string) => {
+  const { userId } = await getUser();
+
+  const isAdmin = await checkRole('admin');
+
+  const comment = await prisma.lessonComment.findUnique({
+    where: { id: commentId },
+  });
+
+  if (!comment) {
+    throw new Error('Comentário não encontrado');
+  }
+
+  if (!isAdmin && comment.userId !== userId) {
+    throw new Error('Você não tem permissão para deletar este comentário');
+  }
+
+  await prisma.lessonComment.delete({
+    where: {
+      id: commentId,
+    },
+  });
 };

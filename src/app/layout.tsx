@@ -3,10 +3,14 @@ import { Nunito } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ptBR } from '@clerk/localizations';
+import { ClientProviders } from '@/components/shared/client-providers';
+import { setDefaultOptions } from 'date-fns';
+import { ptBR as dateFnsPtBR } from 'date-fns/locale';
+
+setDefaultOptions({ locale: dateFnsPtBR });
 
 import '@/styles/globals.css';
 import '@/styles/clerk.css';
-import { ClientProviders } from '@/components/shared/client-providers';
 
 const nunito = Nunito({
   variable: '--font-sans',
