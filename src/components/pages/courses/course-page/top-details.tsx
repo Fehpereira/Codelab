@@ -17,8 +17,7 @@ export const TopDetails = ({ course }: TopDetailsProps) => {
   const { autoplay, setAutoPlay, setModulesListCollapsed } =
     usePreferencesStore();
 
-  const moduleId = useGetParams('moduleId');
-  const lessonId = useGetParams('lessonId');
+  const { moduleId, lessonId } = useGetParams('moduleId', 'lessonId');
 
   const currentModule = course.modules.find((mod) => mod.id === moduleId);
   const currentLesson = currentModule?.lessons.find(
