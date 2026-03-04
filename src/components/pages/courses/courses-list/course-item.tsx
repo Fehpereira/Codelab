@@ -1,5 +1,4 @@
 import { Badge } from '@/components/ui/badge';
-import { Course, CourseModule, CourseTag } from '@/generated/prisma';
 import { Bookmark } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
