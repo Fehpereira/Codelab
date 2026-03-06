@@ -14,7 +14,7 @@
   "dependencies": {
     "@clerk/localizations": "^3.35.3",
     "@clerk/nextjs": "^6.37.3",
-    "@hookform/resolvers": "^5.0.1",
+    "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.6.0",
     "@radix-ui/react-accordion": "^1.2.8",
     "@tanstack/react-query": "^5.74.7",
@@ -30,13 +30,13 @@
     "radix-ui": "^1.4.3",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-hook-form": "^7.56.1",
+    "react-hook-form": "^7.71.2",
     "react-use-draggable-scroll": "^0.4.7",
     "sonner": "^2.0.7",
     "svix": "^1.64.1",
     "tailwind-merge": "^3.4.0",
     "ts-node": "^10.9.2",
-    "zod": "^3.24.3",
+    "zod": "^3.25.76",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
