@@ -1,5 +1,7 @@
 'use client';
 
+import 'react-credit-cards-2/dist/es/styles-compiled.css';
+
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog/dialog';
 import { Course } from '@/generated/prisma';
@@ -81,7 +83,7 @@ export const CheckoutDialog = ({
 
           {step === 2 && paymentMethod === 'CREDIT_CARD' && (
             <>
-              <CreditCardForm />
+              <CreditCardForm onBack={() => setStep(1)} />
             </>
           )}
 
