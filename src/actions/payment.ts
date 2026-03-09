@@ -6,6 +6,7 @@ import { pixCheckoutSchema, PixCheckoutSchema } from '@/server/schemas/payment';
 import { getUser } from './user';
 import { prisma } from '@/lib/prisma';
 import { asaasApi } from '@/lib/asaas';
+import { PixResponse } from '@/components/pages/courses/course-details/checkout-dialog/pix-form';
 
 export const createPixCheckout = async (payload: PixCheckoutSchema) => {
   const input = pixCheckoutSchema.safeParse(payload);
@@ -31,9 +32,7 @@ export const createPixCheckout = async (payload: PixCheckoutSchema) => {
   const { userId, user } = await getUser();
 
   const course = await prisma.course.findUnique({
-    where: {
-      id: courseId,
-    },
+    where: { id: courseId },
   });
 
   if (!course) {
@@ -56,7 +55,8 @@ export const createPixCheckout = async (payload: PixCheckoutSchema) => {
       code: 'CONFLICT',
     });
   }
-  let customerId = user.asaasId;
+
+  let customerId = user?.asaasId;
 
   if (!customerId) {
     const { data: newCustomer } = await asaasApi.post('/customers', {
@@ -77,29 +77,45 @@ export const createPixCheckout = async (payload: PixCheckoutSchema) => {
     customerId = newCustomer.id as string;
 
     await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        asaasId: customerId,
-      },
+      where: { id: userId },
+      data: { asaasId: customerId },
     });
-
-    const price = course.discountPrice ?? course.price;
-
-    const paymentPayload = {
-      customer: customerId,
-      billingType: 'PIX',
-      value: price,
-      dueDate: new Date().toISOString().split('T')[0],
-      description: `Compra do curso "${course.title}"`,
-      externalReference: courseId,
-    };
-
-    const { data } = await asaasApi.post('/payments', paymentPayload);
-
-    return {
-      invoiceId: data.id as string,
-    };
   }
+
+  const price = course?.discountPrice ?? course?.price;
+
+  const paymentPayload = {
+    customer: customerId,
+    billingType: 'PIX',
+    value: price,
+    dueDate: new Date().toISOString().split('T')[0],
+    description: `Compra do curso "${course.title}"`,
+    externalReference: courseId,
+  };
+
+  const { data } = await asaasApi.post('/payments', paymentPayload);
+
+  return {
+    invoiceId: data.id as string,
+  };
+};
+
+export const getPixQrCode = async (invoiceId: string) => {
+  await getUser();
+
+  const { data } = await asaasApi.get<PixResponse>(
+    `/payments/${invoiceId}/pixQrCode`,
+  );
+
+  return data;
+};
+
+export const getInvoiceStatus = async (invoiceId: string) => {
+  await getUser();
+
+  const { data } = await asaasApi.get(`/payments/${invoiceId}`);
+
+  return {
+    status: data.status as string,
+  };
 };
