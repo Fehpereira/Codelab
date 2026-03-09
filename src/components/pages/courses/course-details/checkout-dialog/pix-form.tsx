@@ -1,22 +1,27 @@
+import { createPixCheckout } from '@/actions/payment';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form/field';
 import { InputField } from '@/components/ui/form/input-field';
 import { Form } from '@/components/ui/form/primitives';
 import { Input } from '@/components/ui/input';
+import { Course } from '@/generated/prisma';
 import { pixCheckoutFormSchema } from '@/server/schemas/payment';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import z from 'zod';
 
 type FormData = z.infer<typeof pixCheckoutFormSchema>;
 
 type PixFormProps = {
   onBack: () => void;
+  course: Course;
 };
 
-export const PixForm = ({ onBack }: PixFormProps) => {
+export const PixForm = ({ onBack, course }: PixFormProps) => {
   const [step, setStep] = useState(1);
 
   const form = useForm({
@@ -31,7 +36,23 @@ export const PixForm = ({ onBack }: PixFormProps) => {
 
   const { handleSubmit, watch } = form;
 
-  const onSubmit = (data: FormData) => {};
+  const { mutateAsync: handleCreateInvoice, isPending: isCreatingInvoice } =
+    useMutation({
+      mutationFn: createPixCheckout,
+      onSuccess: () => {
+        setStep(2);
+      },
+    });
+
+  const onSubmit = (data: FormData) => {
+    toast.promise(
+      handleCreateInvoice({
+        courseId: course.id,
+        ...data,
+      }),
+      { loading: 'Gerando QR Code...' },
+    );
+  };
 
   const handleBack = () => {
     if (step === 1) {
@@ -80,7 +101,9 @@ export const PixForm = ({ onBack }: PixFormProps) => {
             </div>
           </div>
         ) : (
-          <div className=""></div>
+          <div className="">
+            <p>QR Code do Pix</p>
+          </div>
         )}
         <div className="mt-6 flex items-center justify-between w-full flex-col md:flex-row gap-4 md:gap-0">
           <Button
@@ -93,7 +116,7 @@ export const PixForm = ({ onBack }: PixFormProps) => {
             Voltar
           </Button>
           {step === 1 ? (
-            <Button className="w-full md:w-max">
+            <Button className="w-full md:w-max" disabled={isCreatingInvoice}>
               Avançar
               <ArrowRight />
             </Button>
