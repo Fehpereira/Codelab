@@ -11,14 +11,31 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 import Cards from 'react-credit-cards-2';
+import { Course } from '@/@types/types';
+import { useMemo } from 'react';
+import { calculateInstallmentOptions, formatPrice } from '@/lib/utils';
+import { useMutation } from '@tanstack/react-query';
+import { createCreditCardCheckout } from '@/actions/payment';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { error } from 'console';
+import { useValidateCep } from './useValidateCep';
 
 type CreditCardFormProps = {
   onBack: () => void;
+  onClose: () => void;
+  course: Course;
 };
 
 type FormData = z.infer<typeof creditCardCheckoutFormSchema>;
 
-export const CreditCardForm = ({ onBack }: CreditCardFormProps) => {
+export const CreditCardForm = ({
+  onBack,
+  onClose,
+  course,
+}: CreditCardFormProps) => {
+  const router = useRouter();
+
   const form = useForm<FormData>({
     resolver: zodResolver(creditCardCheckoutFormSchema),
     defaultValues: {
@@ -34,16 +51,70 @@ export const CreditCardForm = ({ onBack }: CreditCardFormProps) => {
     },
   });
 
-  const { handleSubmit, watch } = form;
+  const { handleSubmit, watch, setError } = form;
 
   const formValues = watch();
+  const rawCep = watch('postalCode');
 
-  const onSubmit = (data: FormData) => {};
+  const installmentsOptions = useMemo(() => {
+    return calculateInstallmentOptions(
+      course?.discountPrice ?? course.price,
+    ).map((option) => ({
+      label: `${option.installments}x ${formatPrice(option.installmentValue)}${option.hasInterest ? '' : ' (sem juros)'}`,
+      value: String(option.installments),
+    }));
+  }, [course?.discountPrice, course.price]);
 
-  const installmentsOptions = Array.from({ length: 12 }, (_, i) => ({
-    label: `${i + 1}x`,
-    value: `${i + 1}x`,
-  }));
+  const { mutateAsync: handleCheckout, isPending: isLoading } = useMutation({
+    mutationFn: createCreditCardCheckout,
+    onSuccess: async () => {
+      toast.success('Pagamento efetuado com sucesso!');
+
+      onClose();
+
+      toast.success(
+        'Agradecemos por sua compra! Você será redirecionado para o curso em instantes.',
+      );
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+
+      router.push(`/courses/${course.slug}`);
+    },
+    onError: (error) => {
+      if (error.name === 'NOT_AUTHORIZED') {
+        toast.error(error.message);
+        return;
+      }
+
+      if (error.name === 'CONFLICT') {
+        toast.error('Você já possui acesso a este curso!');
+        onClose();
+        return;
+      }
+
+      toast.error(
+        'Ocorreu um erro ao processar o pagamento. Tente novamente ou entre em contato com o suporte.',
+      );
+    },
+  });
+
+  const { mutateAsync: validateCep, isPending: isValidatingCep } =
+    useValidateCep(rawCep, setError);
+
+  const onSubmit = async (data: FormData) => {
+    const isValidCep = await validateCep();
+
+    if (!isValidCep) return;
+
+    toast.promise(
+      handleCheckout({
+        ...data,
+        courseId: course.id,
+      }),
+      {
+        loading: 'Processando pagamento...',
+      },
+    );
+  };
 
   return (
     <Form {...form}>
@@ -132,7 +203,7 @@ export const CreditCardForm = ({ onBack }: CreditCardFormProps) => {
             Voltar
           </Button>
 
-          <Button type="submit">
+          <Button type="submit" disabled={isLoading || isValidatingCep}>
             Confirmar
             <ArrowRight />
           </Button>

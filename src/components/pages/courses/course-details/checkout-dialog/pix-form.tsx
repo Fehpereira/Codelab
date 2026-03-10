@@ -19,16 +19,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import axios from 'axios';
 import z from 'zod';
+import { useValidateCep } from './useValidateCep';
 
 type FormData = z.infer<typeof pixCheckoutFormSchema>;
-
-export type PixResponse = {
-  encodedImage: string;
-  payload: string;
-  expirationDate: string;
-};
 
 type PixFormProps = {
   onBack: () => void;
@@ -57,29 +51,8 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
 
   const rawCep = watch('postalCode');
 
-  const { mutateAsync: validateCep, isPending: isValidatingCep } = useMutation({
-    mutationFn: async () => {
-      try {
-        const cep = unMockValue(rawCep);
-
-        const response = await axios.get(
-          `https://viacep.com.br/ws/${cep}/json`,
-        );
-
-        if (response.data.erro) {
-          setError('postalCode', { type: 'manual', message: 'CEP inválido' });
-          return false;
-        }
-
-        return true;
-      } catch (error) {
-        setError('postalCode', {
-          type: 'manual',
-          message: 'Erro ao validar o CEP',
-        });
-      }
-    },
-  });
+  const { mutateAsync: validateCep, isPending: isValidatingCep } =
+    useValidateCep(rawCep, setError);
 
   const {
     mutate: handleGetQrCode,
@@ -126,7 +99,7 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
     toast.success('Copiado para a área de transferência');
   };
 
-  const handleConfirPayment = async () => {
+  const handleConfirmPayment = async () => {
     if (!createInvoiceResponse?.invoiceId) return;
 
     if (checkStatusIsDisabled) {
@@ -147,6 +120,7 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
         break;
       case 'RECEIVED':
         toast.success('Pagamento efetuado com sucesso!');
+
         onClose();
 
         toast.success(
@@ -260,7 +234,7 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
             <Button
               type="button"
               disabled={!pixData || isLoading}
-              onClick={handleConfirPayment}
+              onClick={handleConfirmPayment}
             >
               Confirmar pagamento
               <Check />
