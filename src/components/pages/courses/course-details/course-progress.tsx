@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { CheckoutDialog } from './checkout-dialog';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { getPurchasedCourses } from '@/actions/courses';
 
 type CourseProgressProps = {
   course: Course;
@@ -20,23 +21,28 @@ type CourseProgressProps = {
 export const CourseProgress = ({ course }: CourseProgressProps) => {
   const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
 
-  const searchParam = useSearchParams();
-
-  const checkoutParam = searchParam.get('checkout');
+  const searchParams = useSearchParams();
+  const checkoutParam = searchParams.get('checkout');
 
   useEffect(() => {
-    if (checkoutParam === 'true') {
-      setShowCheckoutDialog(true);
-    }
+    if (checkoutParam === 'true') setShowCheckoutDialog(true);
   }, [checkoutParam]);
 
-  const hasCourse = false;
+  const { data: purchasedCourses } = useQuery({
+    queryKey: QUERY_KEYS.purchasedCourses,
+    queryFn: () => getPurchasedCourses(),
+  });
+
+  const hasCourse = purchasedCourses?.some(
+    (purchasedCourse) => purchasedCourse.id === course.id,
+  );
 
   const { data: courseProgress } = useQuery({
     queryKey: QUERY_KEYS.courseProgress(course.slug),
     queryFn: () => getCourseProgress(course.slug),
     enabled: !!course.slug && hasCourse,
   });
+
   const progress = courseProgress?.progress ?? 0;
 
   return (
@@ -52,7 +58,7 @@ export const CourseProgress = ({ course }: CourseProgressProps) => {
             <p className="text-xs">{progress}%</p>
           </div>
 
-          <Link href={`/courses/${course.slug}`}>
+          <Link passHref href={`/courses/${course.slug}`}>
             <Button className="w-full mt-4 text-xl font-bold h-auto text-white py-3">
               {progress > 0 ? 'Continuar assistindo' : 'Começar agora'}
               <Play />
@@ -73,7 +79,7 @@ export const CourseProgress = ({ course }: CourseProgressProps) => {
           </p>
 
           <Button
-            className="w-full mt-2 text-xl h-auto text-white py-3"
+            className="w-full mt-2 text-xl font-bold h-auto text-white py-3"
             onClick={() => setShowCheckoutDialog(true)}
           >
             Comprar
@@ -83,9 +89,9 @@ export const CourseProgress = ({ course }: CourseProgressProps) => {
       )}
 
       <CheckoutDialog
-        course={course}
         open={showCheckoutDialog}
         setOpen={setShowCheckoutDialog}
+        course={course}
       />
     </aside>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { getPurchasedCourses } from '@/actions/courses';
 import { Separator } from '@/components/ui/separator';
 import {
   SidebarGroup,
@@ -7,7 +8,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { QUERY_KEYS } from '@/constants/query-keys';
 import { useUser } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
 import {
   BookOpen,
   BookUp2,
@@ -19,6 +22,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 type NavItem = {
   label: string;
@@ -31,17 +35,26 @@ export const NavItems = () => {
 
   const isAdmin = user?.publicMetadata.role === 'admin';
 
+  const { data: purchasedCourses } = useQuery({
+    queryKey: QUERY_KEYS.purchasedCourses,
+    queryFn: () => getPurchasedCourses(),
+  });
+
   const navItems: NavItem[] = [
     {
       label: 'Cursos',
       path: '/',
       icon: SquareDashedBottomCode,
     },
-    {
-      label: 'Meus Cursos',
-      path: '/my-courses',
-      icon: BookUp2,
-    },
+    ...(!!purchasedCourses?.length
+      ? [
+          {
+            label: 'Meus Cursos',
+            path: '/my-courses',
+            icon: BookUp2,
+          },
+        ]
+      : []),
     {
       label: 'Ranking',
       path: '/rankin',

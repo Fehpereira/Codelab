@@ -152,7 +152,6 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
     setStep(1);
   };
 
-  console.log(pixData);
 
   return (
     <Form {...form}>

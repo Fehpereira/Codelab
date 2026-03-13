@@ -11,6 +11,18 @@ type ClerkUserForSync = {
   imageUrl: string;
 };
 
+type FilledUser = {
+  user: NonNullable<Awaited<ReturnType<typeof prisma.user.findUnique>>>;
+  clerkUserId: string;
+  userId: string;
+};
+
+type EmptyUser = {
+  user: null;
+  clerkUserId: null;
+  userId: null;
+};
+
 const getPrimaryEmail = (clerkUser: ClerkUserForSync) => {
   return (
     clerkUser.emailAddresses.find(
@@ -19,10 +31,21 @@ const getPrimaryEmail = (clerkUser: ClerkUserForSync) => {
   );
 };
 
-export const getUser = async () => {
+export async function getUser(throwError?: true): Promise<FilledUser>;
+export async function getUser(
+  throwError: false,
+): Promise<FilledUser | EmptyUser>;
+export async function getUser(
+  throwError = true,
+): Promise<FilledUser | EmptyUser> {
   const { userId: clerkUserId } = await auth();
 
-  if (!clerkUserId) throw new Error('Unauthorized');
+  const emptyUser: EmptyUser = { user: null, clerkUserId: null, userId: null };
+
+  if (!clerkUserId) {
+    if (!throwError) return emptyUser;
+    throw new Error('Unauthorized');
+  }
 
   let user = await prisma.user.findUnique({
     where: {
@@ -57,11 +80,15 @@ export const getUser = async () => {
     });
   }
 
-  if (!user) throw new Error('User not found');
+  if (!user) {
+    if (!throwError) return emptyUser;
+
+    throw new Error('User not found');
+  }
 
   return {
     user,
     clerkUserId,
     userId: user.id,
   };
-};
+}
