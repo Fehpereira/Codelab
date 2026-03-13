@@ -4,12 +4,15 @@ import { NextResponse } from 'next/server';
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (
-    isAdminRoute(req) &&
-    (await auth()).sessionClaims?.metadata.role !== 'admin'
-  ) {
-    const url = new URL('/', req.url);
-    return NextResponse.redirect(url);
+  if (isAdminRoute(req)) {
+    const { userId } = await auth();
+
+    if (!userId) {
+      const url = new URL('/auth/sign-in', req.url);
+      url.searchParams.set('redirect_url', req.url);
+
+      return NextResponse.redirect(url);
+    }
   }
 });
 

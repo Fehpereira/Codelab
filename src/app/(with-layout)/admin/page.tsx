@@ -1,7 +1,16 @@
-export default function AdminPage() {
+import { getNewUsersStats, getPurchasedCoursesStats } from '@/actions/stats';
+import { StatsCharts } from '@/components/pages/admin/stats-charts';
+
+export default async function AdminPage() {
+  const newUsersStats = await getNewUsersStats();
+  const purchasedCoursesStats = await getPurchasedCoursesStats();
+
   return (
     <>
-      <h1>Admin</h1>
+      <StatsCharts
+        newUsersStats={newUsersStats}
+        purchasedCoursesStats={purchasedCoursesStats}
+      />
     </>
   );
 }
