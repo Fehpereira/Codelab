@@ -4,6 +4,7 @@ import {
 } from '@/actions/course-progress';
 import { Tooltip } from '@/components/ui/tooltip';
 import { QUERY_KEYS } from '@/constants/query-keys';
+import { CourseLesson } from '@/generated/prisma';
 import { useGetParams } from '@/hooks/useGetParams';
 import { cn, formatDuration } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

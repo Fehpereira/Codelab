@@ -1,3 +1,4 @@
+import { CourseLesson } from '@/generated/prisma';
 import { LessonComments } from './comments';
 import { LessonPlayer } from './lesson-player';
 

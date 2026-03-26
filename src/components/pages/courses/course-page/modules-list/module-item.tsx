@@ -4,6 +4,8 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 import { LessonItem } from './lesson-item';
 import { useMemo } from 'react';
+import { CourseModuleWithLessons } from '@/@types/types';
+import { CompletedLesson } from '@/generated/prisma';
 
 type ModuleItemProps = {
   data: CourseModuleWithLessons;

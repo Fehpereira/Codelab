@@ -1,5 +1,6 @@
 'use client';
 
+import { CourseWithModulesAndLessons } from '@/@types/types';
 import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';

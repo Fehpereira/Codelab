@@ -15,6 +15,7 @@
     "@clerk/localizations": "^3.35.3",
     "@clerk/nextjs": "^6.37.3",
     "@hookform/resolvers": "^5.2.2",
+    "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.6.0",
     "@radix-ui/primitive": "^1.1.2",
     "@radix-ui/react-accordion": "^1.2.8",

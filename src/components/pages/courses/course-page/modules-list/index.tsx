@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCourseProgress } from '@/actions/course-progress';
 import { useGetParams } from '@/hooks/useGetParams';
 import { QUERY_KEYS } from '@/constants/query-keys';
+import { CourseModuleWithLessons } from '@/@types/types';
 
 type ModulesListProps = {
   modules: CourseModuleWithLessons[];

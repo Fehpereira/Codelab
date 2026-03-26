@@ -2,6 +2,7 @@
 
 import { markLessonAsCompleted } from '@/actions/course-progress';
 import { QUERY_KEYS } from '@/constants/query-keys';
+import { CourseLesson } from '@/generated/prisma';
 import { usePreferencesStore } from '@/stores/preferences';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
