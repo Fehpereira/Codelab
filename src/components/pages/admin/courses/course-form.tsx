@@ -3,6 +3,7 @@
 import { createCourseTag, getCourseTags } from '@/actions/courses';
 import { BackButton } from '@/components/ui/back-button';
 import { Dropzone } from '@/components/ui/dropzone';
+import { Editor } from '@/components/ui/editor';
 import { FormField } from '@/components/ui/form/field';
 import { InputField } from '@/components/ui/form/input-field';
 import { Form } from '@/components/ui/form/primitives';
@@ -155,9 +156,22 @@ export const CourseForm = () => {
             label="Dificuldade"
             options={difficultyOptions}
           />
-          <FormField name="thumbnail" className="col-span-full">
+          <FormField
+            name="thumbnail"
+            label="Thumbnail"
+            className="col-span-full"
+          >
             {({ field }) => (
               <Dropzone file={field.value} setFile={field.onChange} />
+            )}
+          </FormField>
+          <FormField
+            name="Description"
+            label="Descrição"
+            className="col-span-full"
+          >
+            {({ field }) => (
+              <Editor value={field.value} onChange={field.onChange} />
             )}
           </FormField>
         </form>
