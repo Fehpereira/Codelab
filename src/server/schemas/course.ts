@@ -6,7 +6,7 @@ const courseLessonSchema = z.object({
   title: z.string().nonempty({ message: 'Campo obrigatório' }),
   description: z.string().nonempty({ message: 'Campo obrigatório' }),
   videoId: z.string().nonempty({ message: 'Campo obrigatório' }),
-  durationInMS: z.number().min(1, { message: 'Campo obrigatório' }),
+  durationInMs: z.number().min(1, { message: 'Campo obrigatório' }),
   order: z.number().min(1, { message: 'Campo obrigatório' }),
 });
 
