@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 import { FormField } from '@/components/ui/form/field';
 import { Editor } from '@/components/ui/editor';
+import { useEffect } from 'react';
 import { Dialog } from '@/components/ui/dialog/dialog';
 
 const formSchema = z.object({
@@ -19,16 +20,22 @@ const formSchema = z.object({
 
 type LessonFormData = z.infer<typeof formSchema>;
 
+export type LessonFormItem = LessonFormData & { id: string };
+
 type ManageLessonDialogProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
   moduleIndex: number;
+  initialData?: LessonFormItem | null;
+  setInitialData: (data: LessonFormItem | null) => void;
 };
 
 export const ManageLessonDialog = ({
   open,
   setOpen,
   moduleIndex,
+  initialData,
+  setInitialData,
 }: ManageLessonDialogProps) => {
   const {
     getValues,
@@ -46,18 +53,48 @@ export const ManageLessonDialog = ({
     },
   });
 
-  const { handleSubmit } = form;
+  const { handleSubmit, reset } = form;
+
+  const isEditing = !!initialData;
+
+  useEffect(() => {
+    if (open && initialData) {
+      reset(initialData);
+    }
+  }, [initialData, open, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset({
+        title: '',
+        description: '',
+        videoId: '',
+        durationInMs: 0,
+      });
+      setInitialData(null);
+    }
+  }, [open, reset, setInitialData]);
 
   const onSubmit = (data: LessonFormData) => {
     const modules = getValues('modules');
 
-    // TODO: edit lesson
+    if (isEditing) {
+      modules[moduleIndex].lessons = modules[moduleIndex].lessons.map(
+        (lesson) => {
+          if (lesson.id === initialData.id) {
+            return { ...lesson, ...data };
+          }
 
-    modules[moduleIndex].lessons.push({
-      ...data,
-      id: createId(),
-      order: 1,
-    });
+          return lesson;
+        },
+      );
+    } else {
+      modules[moduleIndex].lessons.push({
+        ...data,
+        id: createId(),
+        order: 1,
+      });
+    }
 
     setValue('modules', modules, { shouldValidate: true });
     resetForm(getValues());
@@ -67,7 +104,7 @@ export const ManageLessonDialog = ({
 
   return (
     <Dialog
-      title="Adicionar Aula"
+      title={isEditing ? 'Editar Aula' : 'Adicionar Aula'}
       open={open}
       setOpen={setOpen}
       content={
@@ -94,7 +131,7 @@ export const ManageLessonDialog = ({
               className="max-w-max ml-auto"
               onClick={() => handleSubmit(onSubmit)()}
             >
-              Adicionar
+              {isEditing ? 'Salvar' : 'Adicionar'}
             </Button>
           </form>
         </Form>
