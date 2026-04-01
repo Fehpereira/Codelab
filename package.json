@@ -14,6 +14,7 @@
   "dependencies": {
     "@clerk/localizations": "^3.35.3",
     "@clerk/nextjs": "^6.37.3",
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.6.0",
