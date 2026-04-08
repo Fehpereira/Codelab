@@ -1,6 +1,7 @@
 import { CourseDifficulty, CourseStatus } from '@/generated/prisma';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { checkRole } from './clerk';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -82,4 +83,23 @@ export const calculateInstallmentOptions = (price: number) => {
     });
   }
   return installmentOptions;
+};
+
+export const urlToFile = async (url: string): Promise<File> => {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch file');
+  }
+
+  const blob = await response.blob();
+  const contentType =
+    response.headers.get('Content-Type') || 'application/octet-stream';
+
+  const urlPath = url.split('/').pop() || 'file';
+
+  const parts = urlPath.split('-');
+  const fileName = parts.length > 1 ? parts.slice(1).join('-') : urlPath;
+
+  return new File([blob], fileName, { type: contentType });
 };

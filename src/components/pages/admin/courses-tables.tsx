@@ -1,16 +1,17 @@
 'use client';
 
-import { CourseWithTagsAndModules } from '@/@types/types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
+import { useMemo, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { Badge } from '@/components/ui/badge';
 import { Tooltip } from '@/components/ui/tooltip';
 import { formatPrice, formatStatus } from '@/lib/utils';
-import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
 import { Pencil, Send, Trash } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { CourseWithTagsAndModules } from '@/@types/types';
 
 type CoursesTableProps = {
   courses: CourseWithTagsAndModules[];
@@ -41,7 +42,9 @@ export const CoursesTable = ({ courses }: CoursesTableProps) => {
               </Badge>
             ))}
             {remainingTags.length > 0 && (
-              <Tooltip content={remainingTags.map((tag) => tag.name).join(',')}>
+              <Tooltip
+                content={remainingTags.map((tag) => tag.name).join(', ')}
+              >
                 <Badge variant="outline">+{remainingTags.length}</Badge>
               </Tooltip>
             )}
@@ -54,6 +57,7 @@ export const CoursesTable = ({ courses }: CoursesTableProps) => {
       accessorKey: 'price',
       cell: ({ row }) => {
         const { price, discountPrice } = row.original;
+
         return (
           <div className="flex items-center gap-2">
             {!!discountPrice && (
@@ -72,7 +76,7 @@ export const CoursesTable = ({ courses }: CoursesTableProps) => {
       cell: ({ row }) => {
         const modules = row.original.modules;
 
-        return `${modules.length}`;
+        return `${modules.length} módulos`;
       },
     },
     {
@@ -100,18 +104,22 @@ export const CoursesTable = ({ courses }: CoursesTableProps) => {
     {
       header: '',
       accessorKey: 'actions',
-      cell: () => {
+      cell: ({ row }) => {
+        const course = row.original;
+
         return (
           <div className="flex items-center gap-2 justify-end">
-            <Tooltip content="Alterar o status para Publicação">
+            <Tooltip content="Alterar status para Publicado">
               <Button variant="outline" size="icon">
                 <Send />
               </Button>
             </Tooltip>
             <Tooltip content="Editar curso">
-              <Button variant="outline" size="icon">
-                <Pencil />
-              </Button>
+              <Link passHref href={`/admin/courses/edit/${course.id}`}>
+                <Button variant="outline" size="icon">
+                  <Pencil />
+                </Button>
+              </Link>
             </Tooltip>
             <Tooltip content="Excluir curso">
               <Button variant="outline" size="icon">
@@ -126,7 +134,7 @@ export const CoursesTable = ({ courses }: CoursesTableProps) => {
 
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
-      const lowerSearch = search.toLocaleLowerCase();
+      const lowerSearch = search.toLowerCase();
 
       const titleMatch = course.title.toLowerCase().includes(lowerSearch);
       const tagsMatch = course.tags.some((tag) =>
@@ -146,7 +154,7 @@ export const CoursesTable = ({ courses }: CoursesTableProps) => {
         onChange={({ target }) => setSearch(target.value)}
       />
 
-      <DataTable data={filteredCourses} columns={columns} />
+      <DataTable columns={columns} data={filteredCourses} />
     </>
   );
 };

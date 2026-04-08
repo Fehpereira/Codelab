@@ -10,7 +10,7 @@ const courseLessonSchema = z.object({
   order: z.number().min(1, { message: 'Campo obrigatório' }),
 });
 
-const courseModuleSchema = z.object({
+export const courseModuleSchema = z.object({
   id: z.string(),
   title: z.string().nonempty({ message: 'Campo obrigatório' }),
   description: z.string().nonempty({ message: 'Campo obrigatório' }),
@@ -42,3 +42,10 @@ export const createCourseSchema = courseSchema.extend({
 });
 
 export type CreateCourseFormData = z.infer<typeof createCourseSchema>;
+
+export const updateCourseSchema = courseSchema.extend({
+  id: z.string(),
+  thumbnail: z.instanceof(File).optional(),
+});
+
+export type UpdateCourseFormData = z.infer<typeof updateCourseSchema>;

@@ -2,19 +2,24 @@
 
 import { prisma } from '@/lib/prisma';
 import { getUser } from './user';
-import { CourseWithTagsAndModules } from '@/@types/types';
 import { checkRole } from '@/lib/clerk';
 import {
+  courseModuleSchema,
   CreateCourseFormData,
+  CreateCourseModulePayload,
   createCourseSchema,
+  UpdateCourseFormData,
+  updateCourseSchema,
 } from '@/server/schemas/course';
 import slugify from 'slugify';
 import { revalidatePath } from 'next/cache';
-import { uploadFile } from './upload';
+import { deleteFile, uploadFile } from './upload';
+import { z } from 'zod';
+import { CourseWithTagsAndModules } from '@/@types/types';
 
 type GetCoursesPayload = {
   query?: string;
-  tags: string[] | string;
+  tags?: string[] | string;
 };
 
 export const getCourses = async ({
@@ -114,9 +119,7 @@ export const getPurchasedCoursesWithDetails = async () => {
 };
 
 export const getAdminCourses = async () => {
-  const isAdmin = await checkRole('admin');
-
-  if (!isAdmin) throw new Error('Unauthorized');
+  await checkAuthorization();
 
   const courses = await prisma.course.findMany({
     orderBy: {
@@ -142,9 +145,7 @@ export const getCourseTags = async () => {
 };
 
 export const createCourseTag = async (name: string) => {
-  const isAdmin = await checkRole('admin');
-
-  if (!isAdmin) throw new Error('Unauthorized');
+  await checkAuthorization();
 
   const tag = await prisma.courseTag.create({
     data: { name },
@@ -154,9 +155,7 @@ export const createCourseTag = async (name: string) => {
 };
 
 export const createCourse = async (rawData: CreateCourseFormData) => {
-  const isAdmin = await checkRole('admin');
-
-  if (!isAdmin) throw new Error('Unauthorized');
+  await checkAuthorization();
 
   const data = createCourseSchema.parse(rawData);
 
@@ -216,4 +215,197 @@ export const createCourse = async (rawData: CreateCourseFormData) => {
   revalidatePath('/admin/courses');
 
   return course;
+};
+
+export const updateCourse = async (rawData: UpdateCourseFormData) => {
+  await checkAuthorization();
+
+  const data = updateCourseSchema.parse(rawData);
+
+  const course = await prisma.course.findUnique({
+    where: { id: data.id },
+    include: {
+      tags: true,
+    },
+  });
+
+  if (!course) throw new Error('Course not found');
+
+  let slug = course.slug;
+  let thumbnailUrl = course.thumbnail;
+
+  if (data.title !== course.title) {
+    const rawSlug = slugify(data.title, {
+      lower: true,
+      strict: true,
+    });
+
+    const slugCount = await prisma.course.count({
+      where: {
+        slug: {
+          startsWith: rawSlug,
+        },
+      },
+    });
+
+    slug = slugCount > 0 ? `${rawSlug}-${slugCount + 1}` : rawSlug;
+  }
+
+  if (data.thumbnail) {
+    const { url: newThumbnailUrl } = await uploadFile({
+      file: data.thumbnail,
+      path: 'courses-thumbnails',
+    });
+
+    thumbnailUrl = newThumbnailUrl;
+
+    await deleteFile(course.thumbnail);
+  }
+
+  const updatedCourse = await prisma.course.update({
+    where: { id: data.id },
+    data: {
+      title: data.title,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      price: data.price,
+      discountPrice: data.discountPrice,
+      difficulty: data.difficulty,
+      thumbnail: thumbnailUrl,
+      slug,
+      tags: {
+        set: data.tagIds.map((id) => ({ id })),
+      },
+    },
+  });
+
+  revalidatePath('/');
+  revalidatePath('/admin/courses');
+
+  return updatedCourse;
+};
+
+export const deleteCourseLessons = async (lessonIds: string[]) => {
+  await checkAuthorization();
+
+  await prisma.courseLesson.deleteMany({
+    where: {
+      id: {
+        in: lessonIds,
+      },
+    },
+  });
+};
+
+export const deleteCourseModules = async (moduleIds: string[]) => {
+  await checkAuthorization();
+
+  await prisma.courseModule.deleteMany({
+    where: {
+      id: {
+        in: moduleIds,
+      },
+    },
+  });
+};
+
+export const createCourseModules = async (
+  courseId: string,
+  modules: CreateCourseModulePayload[],
+) => {
+  await checkAuthorization();
+
+  const schema = z.array(courseModuleSchema);
+  const data = schema.parse(modules);
+
+  const courseModules = await Promise.all(
+    data.map((mod) =>
+      prisma.courseModule.create({
+        data: {
+          title: mod.title,
+          description: mod.description,
+          order: mod.order,
+          courseId,
+          lessons: {
+            createMany: {
+              data: mod.lessons.map((lesson) => ({
+                title: lesson.title,
+                description: lesson.description,
+                durationInMs: lesson.durationInMs,
+                order: lesson.order,
+                videoId: lesson.videoId,
+              })),
+            },
+          },
+        },
+      }),
+    ),
+  );
+
+  return courseModules;
+};
+
+export const updateCourseModules = async (
+  modules: CreateCourseModulePayload[],
+) => {
+  await checkAuthorization();
+
+  const schema = z.array(courseModuleSchema);
+  const data = schema.parse(modules);
+
+  await Promise.all(
+    data.map(async (mod) => {
+      await prisma.courseModule.update({
+        where: { id: mod.id },
+        data: {
+          title: mod.title,
+          description: mod.description,
+          order: mod.order,
+        },
+      });
+
+      await Promise.all(
+        mod.lessons.map((lesson) =>
+          prisma.courseLesson.upsert({
+            where: {
+              id: lesson.id,
+            },
+            update: {
+              order: lesson.order,
+              title: lesson.title,
+              description: lesson.description,
+              videoId: lesson.videoId,
+              durationInMs: lesson.durationInMs,
+            },
+            create: {
+              order: lesson.order,
+              title: lesson.title,
+              description: lesson.description,
+              videoId: lesson.videoId,
+              durationInMs: lesson.durationInMs,
+              moduleId: mod.id,
+            },
+          }),
+        ),
+      );
+    }),
+  );
+};
+
+export const revalidateCourseDetails = async (courseId: string) => {
+  await checkAuthorization();
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+
+  if (!course) throw new Error('Course not found');
+
+  revalidatePath(`/courses/details/${course.slug}`);
+};
+
+export const checkAuthorization = async () => {
+  const isAdmin = await checkRole('admin');
+
+  if (!isAdmin) throw new Error('Unauthorized');
 };
