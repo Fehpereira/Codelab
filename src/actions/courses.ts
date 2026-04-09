@@ -16,6 +16,7 @@ import { revalidatePath } from 'next/cache';
 import { deleteFile, uploadFile } from './upload';
 import { z } from 'zod';
 import { CourseWithTagsAndModules } from '@/@types/types';
+import { CourseStatus } from '@/generated/prisma';
 
 type GetCoursesPayload = {
   query?: string;
@@ -408,4 +409,47 @@ export const checkAuthorization = async () => {
   const isAdmin = await checkRole('admin');
 
   if (!isAdmin) throw new Error('Unauthorized');
+};
+
+type UpdateCourseStatusPayload = {
+  courseId: string;
+  status: CourseStatus;
+};
+
+export const updateCourseStatus = async ({
+  courseId,
+  status,
+}: UpdateCourseStatusPayload) => {
+  await checkAuthorization();
+
+  const course = await prisma.course.update({
+    where: {
+      id: courseId,
+    },
+    data: { status },
+  });
+
+  revalidatePath('/');
+  revalidatePath('/admin/courses');
+
+  return course;
+};
+
+export const deleteCourse = async (courseId: string) => {
+  await checkAuthorization();
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+
+  if (!course) throw new Error('Course not found');
+
+  await prisma.course.delete({
+    where: { id: courseId },
+  });
+
+  await deleteFile(course.thumbnail);
+
+  revalidatePath('/');
+  revalidatePath('/admin/courses');
 };
