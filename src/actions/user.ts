@@ -1,7 +1,9 @@
 'use server';
 
+import { AdminUser } from '@/@types/types';
 import { prisma } from '@/lib/prisma';
 import { auth, clerkClient } from '@clerk/nextjs/server';
+import { checkAuthorization } from './courses';
 
 type ClerkUserForSync = {
   primaryEmailAddressId: string | null;
@@ -92,3 +94,27 @@ export async function getUser(
     userId: user.id,
   };
 }
+
+export const getAdminUsers = async (): Promise<AdminUser[]> => {
+  await checkAuthorization();
+
+  const users = await prisma.user.findMany({
+    include: {
+      _count: {
+        select: {
+          courses: true,
+          completedLessons: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return users.map(({ _count, ...user }) => ({
+    ...user,
+    purchasedCourses: _count.courses,
+    completedLessons: _count.completedLessons,
+  }));
+};

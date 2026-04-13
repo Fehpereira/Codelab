@@ -1,5 +1,5 @@
 import { getAdminCourses } from '@/actions/courses';
-import { CoursesTable } from '@/components/pages/admin/courses-tables';
+import { CoursesTable } from '@/components/pages/admin/courses-table';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
