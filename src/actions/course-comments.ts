@@ -3,6 +3,8 @@
 import { prisma } from '@/lib/prisma';
 import { getUser } from './user';
 import { checkRole } from '@/lib/clerk';
+import { checkAuthorization } from './courses';
+import { AdminComment } from '@/@types/types';
 
 type CreateLessonCommentPayload = {
   courseSlug: string;
@@ -110,4 +112,39 @@ export const deleteComment = async (commentId: string) => {
       id: commentId,
     },
   });
+};
+
+export const getAdminComments = async (): Promise<AdminComment[]> => {
+  await checkAuthorization();
+
+  const comments = await prisma.lessonComment.findMany({
+    where: {
+      parentId: null,
+    },
+    include: {
+      user: true,
+      lesson: {
+        include: {
+          module: {
+            include: {
+              course: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          replies: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return comments.map(({ _count, ...comment }) => ({
+    ...comment,
+    repliesCount: _count.replies,
+  }));
 };
