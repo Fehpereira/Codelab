@@ -3,4 +3,5 @@ export const QUERY_KEYS = {
   lessonComments: (lessonId: string) => ['lesson-comments', lessonId],
   purchasedCourses: ['purchased-courses'],
   courseTags: ['course-tags'],
+  notifications: ['notifications'],
 } as const;
