@@ -57,7 +57,7 @@ export const NavItems = () => {
       : []),
     {
       label: 'Ranking',
-      path: '/rankin',
+      path: '/ranking',
       icon: Trophy,
     },
   ];
