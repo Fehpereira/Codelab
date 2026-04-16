@@ -2,6 +2,7 @@ import { getCourse } from '@/actions/courses';
 import { CourseProgress } from '@/components/pages/courses/course-details/course-progress';
 import { BackButton } from '@/components/ui/back-button';
 import { Badge } from '@/components/ui/badge';
+import { EditorPreview } from '@/components/ui/editor';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { prisma } from '@/lib/prisma';
@@ -145,7 +146,10 @@ export default async function CourseDetailsPage({
           </TabsList>
 
           <TabsContent value="overview">
-            <p className="opacity-90 mt-4">{course.description}</p>
+            <EditorPreview
+              className="opacity-90 mt-4"
+              value={course.description}
+            />
 
             <Separator className="my-6" />
 
