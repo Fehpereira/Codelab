@@ -18,7 +18,13 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: 'Codelab',
+  title: {
+    template: '%s | CodeLab',
+    default: 'CodeLab',
+  },
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
