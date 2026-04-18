@@ -156,7 +156,7 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
     <Form {...form}>
       <form
         className="flex flex-col items-center"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (e) => console.log(e))}
       >
         {step === 1 ? (
           <div className="w-full">
@@ -235,6 +235,7 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
           </Button>
           {step === 1 ? (
             <Button
+              type="submit"
               className="w-full md:w-max"
               disabled={isCreatingInvoice || isValidatingCep}
             >
