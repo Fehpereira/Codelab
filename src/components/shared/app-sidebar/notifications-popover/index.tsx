@@ -41,14 +41,10 @@ export const NotificationsPopover = () => {
   );
 
   useEffect(() => {
-    if (!!notifications) {
-      const unreadLength = unreadNotifications.length;
-
-      if (unreadLength <= 0) {
-        setTab('all');
-      }
+    if (notifications && unreadNotifications.length <= 0) {
+      setTab('all');
     }
-  }, [notifications]);
+  }, [notifications, unreadNotifications.length]);
 
   const hasUnreadNotifications = !!unreadNotifications.length;
 

@@ -10,11 +10,11 @@ import { Form } from '@/components/ui/form/primitives';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Course } from '@/generated/prisma';
-import { unMockValue } from '@/lib/utils';
 import { pixCheckoutFormSchema } from '@/server/schemas/payment';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Check, Copy } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -152,7 +152,6 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
     setStep(1);
   };
 
-
   return (
     <Form {...form}>
       <form
@@ -194,10 +193,13 @@ export const PixForm = ({ onBack, onClose, course }: PixFormProps) => {
           <>
             <div className="bg-primary w-[300px] aspect-square rounded-xl p-3 flex items-center justify-center mt-2">
               {pixData?.encodedImage && (
-                <img
+                <Image
                   src={`data:image/png;base64,${pixData.encodedImage}`}
+                  width={300}
+                  height={300}
                   className="w-full h-full rounded-lg object-contain"
                   alt="QR Code"
+                  unoptimized
                 />
               )}
               {isGenerating && <Skeleton className="w-full flex-1" />}

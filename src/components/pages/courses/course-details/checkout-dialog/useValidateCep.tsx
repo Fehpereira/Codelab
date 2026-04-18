@@ -27,11 +27,13 @@ export function useValidateCep(
         }
 
         return true;
-      } catch (error) {
+      } catch {
         setError('postalCode', {
           type: 'manual',
           message: 'Erro ao validar o CEP',
         });
+
+        return false;
       }
     },
   });

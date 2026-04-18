@@ -25,17 +25,17 @@ import { Trash2 } from 'lucide-react';
 type DropzoneProps = {
   file?: File;
   setFile: (file: File | undefined) => void;
-  accpet?: Accept;
+  accept?: Accept;
 };
 
 const defaultAccept: Accept = {
   'image/*': ['.jpg', '.png', '.jpeg', '.webp'],
 };
 
-export const Dropzone = ({ file, setFile, accpet }: DropzoneProps) => {
+export const Dropzone = ({ file, setFile, accept }: DropzoneProps) => {
   return (
     <DropzoneRoot
-      accept={accpet}
+      accept={accept ?? defaultAccept}
       maxSize={5 * 1024 * 1024} // 5MB
       onDropAccepted={(files) => setFile(files[0])}
     >

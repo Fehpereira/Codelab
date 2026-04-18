@@ -18,7 +18,6 @@ import { useMutation } from '@tanstack/react-query';
 import { createCreditCardCheckout } from '@/actions/payment';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { error } from 'console';
 import { useValidateCep } from './useValidateCep';
 
 type CreditCardFormProps = {

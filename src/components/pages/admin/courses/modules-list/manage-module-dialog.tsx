@@ -8,7 +8,6 @@ import { useForm, useFormContext } from 'react-hook-form';
 import z from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 import { useEffect } from 'react';
-import { is } from 'date-fns/locale';
 
 const formSchema = z.object({
   title: z.string().nonempty({ message: 'Campo obrigatório' }),

@@ -1,7 +1,6 @@
 import { CourseDifficulty, CourseStatus } from '@/generated/prisma';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { checkRole } from './clerk';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

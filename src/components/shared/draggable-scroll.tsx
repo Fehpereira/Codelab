@@ -1,6 +1,6 @@
 'use client';
 
-import { ComponentProps, RefObject, useRef } from 'react';
+import { ComponentProps, useRef } from 'react';
 import { useDraggable } from 'react-use-draggable-scroll';
 
 type DraggableScrollProps = ComponentProps<'div'>;
